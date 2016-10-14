@@ -5,9 +5,9 @@ This model can then be saved as a GraphDef.
 This python file can be either included in another project,
 Or run as a standalone script (in which case it just constructs and saves the graph.)
 Example usage: vgg16 with input size 224:
-	python vgg.py 224 16 1000 models/vgg16.meta
-or, for instance, vgg19 with input size 64:
-	python vgg.py 64 19 1000 models/vgg19.meta
+	python vgg.py 224 16 1000 models/vgg16_244_1000.meta
+or, for instance, vgg19 with input size 64 and 2 output classes:
+	python vgg.py 64 19 2 models/vgg19_64_2.meta
 
 Author: Al Nejati
 TrainedEye Medical Technologies Ltd.
@@ -18,7 +18,8 @@ import tensorflow as tf
 
 # A single convolutional layer with in_channels input features and
 # out_channels output features.
-def conv_layer(x, in_channels, out_channels):
+def conv_layer(x, in_channels, out_channels, name):
+	with tf.variable_scope(name):
 		filt = tf.get_variable("filters",
 			                   shape=[3, 3, in_channels, out_channels],
 			                   initializer=tf.truncated_normal_initializer(0.0, 0.001))
@@ -49,8 +50,7 @@ def conv_block(x, n_convs, n_input_channels, n_output_channels, name):
 	with tf.variable_scope(name):
 		n_channels = n_input_channels
 		for i in range(n_convs):
-			with tf.variable_scope("conv_%d" % (i+1)):
-				x = conv_layer(x, n_channels, n_output_channels)
+			x = conv_layer(x, n_channels, n_output_channels, "conv_%d" % (i+1))
 			n_channels = n_output_channels
 		return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name="pool")
 
