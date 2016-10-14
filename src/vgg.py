@@ -56,12 +56,9 @@ def conv_block(x, n_convs, n_input_channels, n_output_channels, name):
 
 # The VGG model. This is a stack of five conv_blocks plus three fc_layers.
 def vgg(x, train_mode, num_classes, patch_size=224, vgg_type="16"):
-	if vgg_type == "16":
-		nc = 3
-	elif vgg_type == "19":
-		nc = 4
-	else:
-		raise ValueError("vgg_type must be either '16' or '19'")
+	assert(vgg_type=="19" or vgg_type=="16")
+	nc = 4 if vgg_type=="19" else 3
+	
 	with tf.variable_scope("vgg"):
 		# TODO: normalize inputs 
 		pool1 = conv_block(    x, 2,    3,  64, "block_1")
